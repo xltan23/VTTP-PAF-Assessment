@@ -19,8 +19,10 @@ import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import vttp2022.paf.assessment.eshop.models.Customer;
 import vttp2022.paf.assessment.eshop.models.Order;
+import vttp2022.paf.assessment.eshop.models.OrderStatus;
 import vttp2022.paf.assessment.eshop.respositories.CustomerRepository;
 import vttp2022.paf.assessment.eshop.respositories.OrderRepository;
+import vttp2022.paf.assessment.eshop.services.WarehouseService;
 
 @RestController
 @RequestMapping(path = "/api/order")
@@ -31,6 +33,9 @@ public class OrderController {
 
 	@Autowired
 	private OrderRepository orderRepo;
+
+	@Autowired
+	private WarehouseService warehseSvc;
 
 	//TODO: Task 3
 	@GetMapping(path = "/customer/{name}")
@@ -74,4 +79,28 @@ public class OrderController {
 							.contentType(MediaType.APPLICATION_JSON)
 							.body(jo.toString());
 	}
+
+	@PostMapping(path = "/checkout/dispatch")
+	public ResponseEntity<String> checkoutAndDispatchOrder(@RequestBody String jsonString) {
+		Order order = Order.create(jsonString);
+		OrderStatus orderStatus = warehseSvc.dispatch(order);
+		order.setStatus(orderStatus.getStatus());
+		Boolean success = orderRepo.insertOrder(order);
+		if (orderStatus.getStatus().equals("pending")) {
+			JsonObject errorMsg = Json.createObjectBuilder()
+								.add("error", "did not successfully dispatch order")
+								.build();
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+								.contentType(MediaType.APPLICATION_JSON)
+								.body(errorMsg.toString());
+		} 
+		JsonObject jo = Json.createObjectBuilder()
+							.add("success", "order dispatched")
+							.build();
+		return ResponseEntity.status(HttpStatus.OK)
+							.contentType(MediaType.APPLICATION_JSON)
+							.body(jo.toString());
+	}
+
+	
 }

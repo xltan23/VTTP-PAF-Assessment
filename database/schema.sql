@@ -16,7 +16,7 @@ INSERT INTO customers (name, address, email) VALUES ("dursley", "4 Privet Drive,
 -- orders table
 CREATE TABLE orders (
 	id VARCHAR(8) not null,
-    delivery_id VARCHAR(8) not null,
+    delivery_id VARCHAR(128) not null,
 	name VARCHAR(32) not null,
     email VARCHAR(128) not null,
     address VARCHAR(128) not null,
@@ -31,4 +31,12 @@ CREATE TABLE line_items (
     item VARCHAR(128) not null,
     quantity int not null,
     constraint fk_order_id foreign key(order_id) references orders(id)
+);
+
+-- order_status table
+CREATE TABLE order_status (
+	order_id VARCHAR(8) not null,
+    delivery_id VARCHAR(128) default null,
+    status enum('pending','dispatched') not null,
+    status_update Date not null
 );

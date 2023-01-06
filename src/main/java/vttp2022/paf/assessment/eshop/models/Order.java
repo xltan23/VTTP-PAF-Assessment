@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
+import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
 import jakarta.json.JsonValue;
@@ -68,8 +69,6 @@ public class Order {
 		order.setName(jo.getString("name"));
 		order.setAddress(jo.getString("address"));
 		order.setEmail(jo.getString("email"));
-		// order.setStatus("pending");
-		// order.setOrderDate(Date.from(Instant.now()));
 		List<LineItem> lineItemList = new LinkedList<>();
 		JsonArray lineItems = jo.getJsonArray("lineItems");
 		for (JsonValue lineItem : lineItems) {
@@ -85,6 +84,23 @@ public class Order {
 		StringReader sr = new StringReader(jsonString);
 		JsonReader jr = Json.createReader(sr);
 		return create(jr.readObject());
+	}
+
+	// Convert Order into JsonObject payload to be posted to server
+	public JsonObject toJSON() {
+		JsonArrayBuilder jab = Json.createArrayBuilder();
+		for (LineItem lineItem : lineItems) {
+			jab.add(lineItem.toJSON());
+		}
+		JsonArray ja = jab.build();
+		return Json.createObjectBuilder()
+					.add("orderId", orderId)
+					.add("name", name)
+					.add("address", address)
+					.add("email", email)
+					.add("lineItems", ja)
+					.add("createdBy", "Tan Xian Liang")
+					.build();
 	}
 }
 

@@ -1,5 +1,7 @@
 package vttp2022.paf.assessment.eshop.models;
 
+import jakarta.json.JsonObject;
+
 // DO NOT CHANGE THIS CLASS
 public class OrderStatus {
 
@@ -15,4 +17,12 @@ public class OrderStatus {
 
 	public String getStatus() { return this.status; }
 	public void setStatus(String status) { this.status = status; }
+
+	public static OrderStatus create(JsonObject jo) {
+		OrderStatus orderStatus = new OrderStatus();
+		orderStatus.setOrderId(jo.getString("orderId"));
+		orderStatus.setDeliveryId(jo.getString("deliveryId"));
+		// orderStatus.setStatus("dispatched");
+		return orderStatus;
+	}
 }
