@@ -68,7 +68,7 @@ public class OrderController {
 			JsonObject errorMsg = Json.createObjectBuilder()
 								.add("error", "did not successfully insert order")
 								.build();
-			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+			return ResponseEntity.status(HttpStatus.OK)
 								.contentType(MediaType.APPLICATION_JSON)
 								.body(errorMsg.toString());
 		} 
@@ -86,21 +86,38 @@ public class OrderController {
 		OrderStatus orderStatus = warehseSvc.dispatch(order);
 		order.setStatus(orderStatus.getStatus());
 		Boolean success = orderRepo.insertOrder(order);
-		if (orderStatus.getStatus().equals("pending")) {
+		if (!success) {
 			JsonObject errorMsg = Json.createObjectBuilder()
-								.add("error", "did not successfully dispatch order")
+								.add("error", "did not successfully insert order")
 								.build();
-			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+			return ResponseEntity.status(HttpStatus.OK)
 								.contentType(MediaType.APPLICATION_JSON)
 								.body(errorMsg.toString());
 		} 
-		JsonObject jo = Json.createObjectBuilder()
-							.add("success", "order dispatched")
+		JsonObject statusMsg = null;
+		
+		// If order successfuly inserted: check if order has been dispatched
+		if (orderStatus.getStatus().equals("pending")) {
+			statusMsg = Json.createObjectBuilder()
+								.add("Order Status", orderStatus.toJSON())
+								.build();
+			return ResponseEntity.status(HttpStatus.OK)
+								.contentType(MediaType.APPLICATION_JSON)
+								.body(statusMsg.toString());
+		} 
+		statusMsg = Json.createObjectBuilder()
+							.add("Order Status", orderStatus.toJSON())
 							.build();
 		return ResponseEntity.status(HttpStatus.OK)
 							.contentType(MediaType.APPLICATION_JSON)
-							.body(jo.toString());
+							.body(statusMsg.toString());
 	}
 
-	
+	@GetMapping(path = "{name}/status")
+	public ResponseEntity<String> getCustomerOrders(@PathVariable String name) {
+		JsonObject customerOrders = orderRepo.getCustomerOrders(name);
+		return ResponseEntity.status(HttpStatus.OK)
+							.contentType(MediaType.APPLICATION_JSON)
+							.body(customerOrders.toString());
+	}
 }

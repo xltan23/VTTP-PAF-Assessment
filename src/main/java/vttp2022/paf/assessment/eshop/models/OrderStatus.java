@@ -1,5 +1,6 @@
 package vttp2022.paf.assessment.eshop.models;
 
+import jakarta.json.Json;
 import jakarta.json.JsonObject;
 
 // DO NOT CHANGE THIS CLASS
@@ -24,5 +25,19 @@ public class OrderStatus {
 		orderStatus.setDeliveryId(jo.getString("deliveryId"));
 		// orderStatus.setStatus("dispatched");
 		return orderStatus;
+	}
+
+	public JsonObject toJSON() {
+		if (status.equals("pending")) {
+			return Json.createObjectBuilder()
+						.add("orderId", orderId)
+						.add("status", status)
+						.build();
+		}
+		return Json.createObjectBuilder()
+					.add("orderId", orderId)
+					.add("deliveryId", deliveryId)
+					.add("status", status)
+					.build();
 	}
 }
