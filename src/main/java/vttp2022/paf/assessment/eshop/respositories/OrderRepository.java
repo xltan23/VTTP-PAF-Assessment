@@ -1,10 +1,7 @@
 package vttp2022.paf.assessment.eshop.respositories;
 
-import java.time.Instant;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
-import vttp2022.paf.assessment.eshop.models.Customer;
 import vttp2022.paf.assessment.eshop.models.LineItem;
 import vttp2022.paf.assessment.eshop.models.Order;
 
