@@ -11,4 +11,11 @@ public class LineItem {
 
 	public Integer getQuantity() { return this.quantity; }
 	public void setQuantity(Integer quantity) { this.quantity = quantity; }
+
+	public static LineItem create(String item, Integer quantity) {
+		LineItem lineItem = new LineItem();
+		lineItem.setItem(item);
+		lineItem.setQuantity(quantity);
+		return lineItem;
+	}
 }

@@ -1,8 +1,16 @@
 package vttp2022.paf.assessment.eshop.models;
 
+import java.io.StringReader;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
+
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
+import jakarta.json.JsonValue;
 
 // DO NOT CHANGE THIS CLASS
 public class Order {
@@ -53,5 +61,30 @@ public class Order {
 	public List<LineItem> getLineItems() { return this.lineItems; }
 	public void setLineItems(List<LineItem> lineItems) { this.lineItems = lineItems; }
 	public void addLineItem(LineItem lineItem) { this.lineItems.add(lineItem); }
+
+	public static Order create(JsonObject jo) {
+		Order order = new Order();
+		order.setOrderId(UUID.randomUUID().toString().substring(0,8));
+		order.setName(jo.getString("name"));
+		order.setAddress(jo.getString("address"));
+		order.setEmail(jo.getString("email"));
+		// order.setStatus("pending");
+		// order.setOrderDate(Date.from(Instant.now()));
+		List<LineItem> lineItemList = new LinkedList<>();
+		JsonArray lineItems = jo.getJsonArray("lineItems");
+		for (JsonValue lineItem : lineItems) {
+			String item = lineItem.asJsonObject().getString("item");
+			Integer quantity = lineItem.asJsonObject().getInt("quantity");
+			lineItemList.add(LineItem.create(item, quantity));
+		}
+		order.setLineItems(lineItemList);
+		return order;
+	}
+
+	public static Order create(String jsonString) {
+		StringReader sr = new StringReader(jsonString);
+		JsonReader jr = Json.createReader(sr);
+		return create(jr.readObject());
+	}
 }
 
