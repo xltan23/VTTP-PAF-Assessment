@@ -42,19 +42,22 @@ public class WarehouseService {
 			JsonObject orderRequest = order.toJSON();
 			System.out.println(orderRequest.toString());
 			// RequestEntity<JsonObject> req = RequestEntity.post("http://paf.chuklee.com/dispatch/{var}", order.getOrderId()).accept(MediaType.APPLICATION_JSON).body(orderRequest);
-			RequestEntity<JsonObject> req = RequestEntity.post(url).accept(MediaType.APPLICATION_JSON).body(orderRequest);
+			RequestEntity<JsonObject> req = RequestEntity.post(url)
+														.accept(MediaType.APPLICATION_JSON)
+														.body(orderRequest);
 			// Make the call to server 
 			RestTemplate template = new RestTemplate();
 			ResponseEntity<String> resp;
 			resp = template.exchange(req, String.class);
 			payload = resp.getBody(); 
+			// Expected payload: {orderId:"",deliveryId:""}
 			System.out.println(payload);
 		} catch (Exception e) {
 			// If dispatch failed:
 			System.err.printf("Error: %s\n", e.getMessage());
 			OrderStatus pendingOrder = new OrderStatus();
 			pendingOrder.setOrderId(order.getOrderId());
-			pendingOrder.setDeliveryId("");
+			pendingOrder.setDeliveryId(null);
 			pendingOrder.setStatus("pending");
 			jdbcTemplate.update(SQL_INSERT_ORDER_STATUS, pendingOrder.getOrderId(), pendingOrder.getDeliveryId(), pendingOrder.getStatus());
 			return pendingOrder;

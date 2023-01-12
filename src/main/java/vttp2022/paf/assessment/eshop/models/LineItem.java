@@ -6,9 +6,11 @@ import jakarta.json.JsonObject;
 // DO NOT CHANGE THIS CLASS
 public class LineItem {
 
+	// Members of LineItem
 	private String item;
 	private Integer quantity;
 
+	// Generate getter and setter
 	public String getItem() { return this.item; }
 	public void setItem(String item) { this.item = item; }
 

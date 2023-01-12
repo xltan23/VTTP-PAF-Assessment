@@ -1,7 +1,5 @@
 package vttp2022.paf.assessment.eshop.controllers;
 
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,17 +36,19 @@ public class OrderController {
 	private WarehouseService warehseSvc;
 
 	//TODO: Task 3
+	// localhost:8080/api/order/customer/{name}
 	@GetMapping(path = "/customer/{name}")
 	public ResponseEntity<String> findCustomer(@PathVariable String name) {
 		Optional<Customer> optCustomer = customerRepo.findCustomerByName(name);
 		if (optCustomer.isEmpty()) {
-			JsonObject errorMsg = Json.createObjectBuilder()
+			JsonObject notFound = Json.createObjectBuilder()
 										.add("error", "Customer " + name + " not found")
 										.build();
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
 								.contentType(MediaType.APPLICATION_JSON)
-								.body(errorMsg.toString());
+								.body(notFound.toString());
 		}
+		// Generate customer result to test method
 		JsonObject customerResult = Json.createObjectBuilder()
 										.add("Customer", optCustomer.get().toJSON())
 										.build();
@@ -57,29 +57,33 @@ public class OrderController {
 							.body(customerResult.toString());
 	}
 
+	// localhost:8080/api/order/checkout
 	@PostMapping(path = "/checkout")
 	public ResponseEntity<String> checkoutOrder(@RequestBody String jsonString) {
-		// Json String comprise of following info:
-		// Name, Address, Email, LineItem JsonArray
+		// JsonString comprise of following info:
+		// Name, Address, Email, LineItem JsonArray 
 		Order order = Order.create(jsonString);
 		// Upon creation, Order ID is added
 		Boolean success = orderRepo.insertOrder(order);
 		if (!success) {
-			JsonObject errorMsg = Json.createObjectBuilder()
+			JsonObject failInsert = Json.createObjectBuilder()
 								.add("error", "did not successfully insert order")
 								.build();
 			return ResponseEntity.status(HttpStatus.OK)
 								.contentType(MediaType.APPLICATION_JSON)
-								.body(errorMsg.toString());
+								.body(failInsert.toString());
 		} 
-		JsonObject jo = Json.createObjectBuilder()
+		JsonObject successInsert = Json.createObjectBuilder()
 							.add("success", "order inserted")
 							.build();
 		return ResponseEntity.status(HttpStatus.OK)
 							.contentType(MediaType.APPLICATION_JSON)
-							.body(jo.toString());
+							.body(successInsert.toString());
 	}
 
+	// localhost:8080/api/order/checkout/dispatch
+	// JsonString comprise of following info:
+	// Name, Address, Email, LineItem JsonArray
 	@PostMapping(path = "/checkout/dispatch")
 	public ResponseEntity<String> checkoutAndDispatchOrder(@RequestBody String jsonString) {
 		Order order = Order.create(jsonString);
@@ -87,12 +91,12 @@ public class OrderController {
 		order.setStatus(orderStatus.getStatus());
 		Boolean success = orderRepo.insertOrder(order);
 		if (!success) {
-			JsonObject errorMsg = Json.createObjectBuilder()
+			JsonObject failInsert = Json.createObjectBuilder()
 								.add("error", "did not successfully insert order")
 								.build();
 			return ResponseEntity.status(HttpStatus.OK)
 								.contentType(MediaType.APPLICATION_JSON)
-								.body(errorMsg.toString());
+								.body(failInsert.toString());
 		} 
 		JsonObject statusMsg = null;
 		
@@ -113,6 +117,7 @@ public class OrderController {
 							.body(statusMsg.toString());
 	}
 
+	// localhost:8080/api/order/{name}/status
 	@GetMapping(path = "{name}/status")
 	public ResponseEntity<String> getCustomerOrders(@PathVariable String name) {
 		JsonObject customerOrders = orderRepo.getCustomerOrders(name);

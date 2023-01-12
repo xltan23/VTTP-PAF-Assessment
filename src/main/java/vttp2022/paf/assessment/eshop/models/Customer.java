@@ -8,10 +8,12 @@ import jakarta.json.JsonObject;
 // DO NOT CHANGE THIS CLASS
 public class Customer {
 
+	// Members of customer
 	private String name;
 	private String address;
 	private String email;
 
+	// Generate getter and setter
 	public String getName() { return this.name; }
 	public void setName(String name) { this.name = name; }
 

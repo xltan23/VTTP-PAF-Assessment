@@ -23,9 +23,9 @@ public class OrderRepository {
 
 	// TODO: Task 3
 	public boolean insertOrder(Order order) {
+		// When order is inserted to SQL, set status to pending
 		order.setStatus("pending");
 		List<LineItem> lineItems = order.getLineItems();
-
 		// Create list of object array
 		List<Object[]> objArrayList = lineItems.stream()
 												.map(lineItem -> {
@@ -39,12 +39,14 @@ public class OrderRepository {
 		// Perform insertion on both tables
 		Integer numRows = jdbcTemplate.update(SQL_INSERT_ORDER, order.getOrderId(), order.getName(), order.getEmail(), order.getAddress(), order.getStatus());
 		int[] array = jdbcTemplate.batchUpdate(SQL_INSERT_LINE_ITEMS, objArrayList);
+		// If insertions successful, numRow and array.length should be more than 0. (i.e. At least 1 row affected)
 		return (numRows > 0 && array.length > 0);
 	} 
 
 	public JsonObject getCustomerOrders(String name) {
 		List<Integer> pendingCountList = new LinkedList<>();
 		List<Integer> dispatchedCountList = new LinkedList<>();
+		// Query to retrieve count from each tables
 		SqlRowSet pendingSrs = jdbcTemplate.queryForRowSet(SQL_SELECT_PENDING_COUNT, name);
 		SqlRowSet dispatchedSrs = jdbcTemplate.queryForRowSet(SQL_SELECT_DISPATCH_COUNT, name);
 		while(pendingSrs.next()) {

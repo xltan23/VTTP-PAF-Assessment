@@ -16,6 +16,7 @@ import jakarta.json.JsonValue;
 // DO NOT CHANGE THIS CLASS
 public class Order {
 
+	// Members of Order
 	private String orderId;
 	private String deliveryId;
 	private String name;
@@ -25,6 +26,7 @@ public class Order {
 	private Date orderDate = new Date();
 	private List<LineItem> lineItems = new LinkedList<>();
 
+	// Generate getter and setter
 	public String getOrderId() { return this.orderId; }
 	public void setOrderId(String orderId) { this.orderId = orderId; }
 
@@ -63,23 +65,30 @@ public class Order {
 	public void setLineItems(List<LineItem> lineItems) { this.lineItems = lineItems; }
 	public void addLineItem(LineItem lineItem) { this.lineItems.add(lineItem); }
 
+	// Create Order Object from JsonObject
 	public static Order create(JsonObject jo) {
+		// Order: orderId, name, address, email, lineItems
+		// Not in Order: deliveryId, status, orderDate (retrieved from query)
 		Order order = new Order();
+		// Upon Order creation, a UUID is generated
 		order.setOrderId(UUID.randomUUID().toString().substring(0,8));
 		order.setName(jo.getString("name"));
 		order.setAddress(jo.getString("address"));
 		order.setEmail(jo.getString("email"));
 		List<LineItem> lineItemList = new LinkedList<>();
+		// JsonObject consist of "lineItems" : [{"item":"","quantity":""},{"item":"","quantity":""}]
 		JsonArray lineItems = jo.getJsonArray("lineItems");
 		for (JsonValue lineItem : lineItems) {
 			String item = lineItem.asJsonObject().getString("item");
 			Integer quantity = lineItem.asJsonObject().getInt("quantity");
+			// Create LineItem object and add to list
 			lineItemList.add(LineItem.create(item, quantity));
 		}
 		order.setLineItems(lineItemList);
 		return order;
 	}
 
+	// Create Order Object from JsonString (String posted via. Postman)
 	public static Order create(String jsonString) {
 		StringReader sr = new StringReader(jsonString);
 		JsonReader jr = Json.createReader(sr);
